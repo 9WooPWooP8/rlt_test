@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 from datetime import datetime
+from dateutil import parser
 
 client = MongoClient("localhost", 27017)
 
@@ -7,11 +8,14 @@ db = client.rlt_test
 
 sample_collection = db.sample_collection
 test_input = {
-    "dt_from": "2022-09-01T00:00:00",
+    "dt_from": "2022-12-30T00:00:00",
     "dt_upto": "2022-12-31T23:59:00",
-    "group_type": "month",
+    "group_type": "hour",
 }
 
+PARSER_DEFAULT_DATE = datetime(1978, 1, 1, 0, 0)
+
+group_by_hour_substr_params = [0, 13]
 group_by_day_substr_params = [0, 10]
 group_by_month_susbtr_params = [0, 7]
 group_by_year_susbtr_params = [0, 4]
@@ -25,6 +29,8 @@ def get_aggregated_payments(date_from: str, date_upto: str, group_type: str) -> 
             substr_params = group_by_day_substr_params
         case "month":
             substr_params = group_by_month_susbtr_params
+        case "hour":
+            substr_params = group_by_hour_substr_params
         case "year":
             substr_params = group_by_year_susbtr_params
         case _:
@@ -59,7 +65,9 @@ def get_aggregated_payments(date_from: str, date_upto: str, group_type: str) -> 
     sum_list = []
 
     for entry in sample_collection.aggregate(pipeline):
-        date_list.append(entry["_id"])
+        date_list.append(
+            parser.parse(entry["_id"], default=PARSER_DEFAULT_DATE).isoformat()
+        )
         sum_list.append(entry["sum"])
 
     result = {"dataset": sum_list, "date_list": date_list}
@@ -70,3 +78,5 @@ def get_aggregated_payments(date_from: str, date_upto: str, group_type: str) -> 
 test = get_aggregated_payments(
     test_input["dt_from"], test_input["dt_upto"], test_input["group_type"]
 )
+
+print(test)
