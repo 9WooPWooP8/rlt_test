@@ -22,7 +22,7 @@ async def get_payments_command(update: Update, context: ContextTypes.DEFAULT_TYP
 
     try:
         aggregated_payments = get_aggregated_payments(date_from, date_upto, group_type)
-    except:
+    except Exception:
         return await context.bot.send_message(
             chat_id=update.effective_chat.id, text="error while getting data"
         )
