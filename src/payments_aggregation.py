@@ -41,7 +41,7 @@ def get_aggregated_payments(date_from: str, date_upto: str, group_type: str) -> 
             "$match": {
                 "dt": {
                     "$gte": datetime.fromisoformat(date_from),
-                    "$lt": datetime.fromisoformat(date_upto),
+                    "$lte": datetime.fromisoformat(date_upto),
                 }
             }
         },
@@ -70,7 +70,7 @@ def get_aggregated_payments(date_from: str, date_upto: str, group_type: str) -> 
         )
         sum_list.append(entry["sum"])
 
-    result = {"dataset": sum_list, "date_list": date_list}
+    result = {"dataset": sum_list, "labels": date_list}
 
     return result
 
